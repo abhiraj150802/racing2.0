@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <title>Document</title>
+ <style>
+     *{ margin: 0;padding: 0;}
+     .hide{display: none;}
+     .carGame
+     {
+        width:100% ; 
+        height: 100vh;
+        background-image: url('./nature.jpg');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+
+     }
+     .car,.enemy{
+       width: 50px;height: 100px;background: red;
+       position: absolute;
+      bottom: 120px;
+      background-image: url('./acar.jpg');
+      background-repeat: no-repeat;
+      background-size:100% 100% ;
+
+        }
+       .lines{
+           width: 10px;
+           height: 100px;
+           background: white;
+           position:absolute;
+           margin-left: 195px;
+           
+       } 
+    
+     .gameArea{
+            width: 400px;
+            height: 100vh; 
+            background: #2d3436;
+            margin: auto;
+            position:relative;
+            overflow:hidden ;
+            border-left: 7px dashed #c8d6e5;
+            border-right: 7px dashed #c8d6e5;
+           
+        }
+        .score
+        {
+            position: absolute;
+         
+            line-height: 70px;
+            top: 15px;
+            left:40px;
+            width: 300px;
+            background:green ;
+            text-align: center;
+            color: white;
+            font: size 1.5em; 
+            font-family:fantasy ;
+        }
+
+        .startScreen
+        {
+            position: absolute;
+            background-color: #ee5253;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            color: white;
+            z-index: 1;
+            text-align: center;
+            border: 1px solid #ff6b6b;
+            padding: 15px;
+            margin:auto ;
+            width: 50%;
+            cursor:pointer ;
+            font-family: carfont;
+            letter-spacing:5;
+            font-size: 20px;
+            word-spacing:3;
+            line-height:30px;
+            text-transform: uppercase;
+             box-shadow:0 5px 5px #777;
+
+
+            
+        }
+ </style>
+</head>
+<body>
+    <div class= "carGame">
+        <div class="score"></div>
+        <div class="startScreen"> 
+        <p>
+            press here to start <br>
+            if u hit another car game will over
+        </p>
+        </div>
+        <div class="gameArea "> </div> <!-- here hide is a class to hide the gameArea -->
+    </div>
+    <script>
+      //av aha variable ke through sabhi div ko access karenge
+        const score=document.querySelector('.score');//docum......ke jagah ek id bana ke v usko aha use kar sakte the ,par iska use accha hota h
+        const startScreen=document.querySelector('.startScreen');//a bracket wala . check karega ki startSreen naam ka class kahahai
+        const gameArea=document.querySelector('.gameArea');
+        console.log(gameArea);
+        //ab startscreen mai koe click kare to game start hona chahiye
+        startScreen.addEventListener('click',start);//div start screen mai koe ckick kiya to start naam ka fun cl hoga
+        let player={speed:8,score:0};// 5 ke baad; nahi h kuki ek hi value jarurat nahi hota
+
+
+
+        //html code likh kar jo page khulta h usko document kahte h ,so  ab hume a pata karna h ki user kon sa key press kar raha h
+        let keys={ArrowUp:false,ArrowDown:false,ArrowLeft:false,ArrowRight:false}//creating object
+        document.addEventListener('keydown',keyDown);
+        //matlab koe v mere docum...mai keydown ya press kiya to keyDown function cl ho jayega
+        document.addEventListener('keyup',keyUp);//A fun se pata chalega kon sa key dabaye the jo chodne pe upper aa raha h
+        // ab a 2 fun ko define karenge
+        function keyDown(e)
+        {
+            e.preventDefault();//isliye taki javascri..koe apna parame..na pas kar de
+         keys[e.key]=true;//hum jo key press karenge sirf wahi true hoga baki false ho jayega
+        //console.log(e.key);//a koe v key press kara or janna h ki kon key press huwa  
+
+        console.log(keys);
+        }
+        function keyUp(e)
+        {
+            e.preventDefault();
+            keys[e.key]=false;//ab jo key press kiye the usko release karte wqat false kar denge
+        //console.log(e.key);
+        console.log (keys);
+        }
+      function isCollide(a,b)
+      {
+          aRect=a.getBoundingClientRect();
+          bReact=b.getBoundingClientRect();
+           return !((aRect.top>bReact.bottom)||(aRect.bottom<bReact.top)||(aRect.left>bReact.right)
+           ||(aRect.right<bReact.left))
+      }
+        
+        function moveLines(){
+             let lines = document.querySelectorAll('.lines');
+
+             lines.forEach(function(item) {
+
+                 if(item.y>=700)
+                 {
+                     item.y-=750;
+                 }
+              item.y+=player.speed;  
+              item.style.top=item.y+"px"; 
+             })
+         }
+          
+           function endgame()
+           {
+               player.start=false;
+               startScreen.classList.remove('hide');
+               startScreen.innerHTML="GAME OVER <br> your final score is "+player.score+
+               "<br> press here to start again";
+           }
+
+
+
+         function moveenemy(car){
+             let enemy = document.querySelectorAll('.enemy');
+
+             enemy.forEach(function(item) {
+                 if(isCollide(car,item))
+                 {
+                    console.log("BOOM CAR HIT") ;
+                    endgame();
+                 }
+                 if(item.y>=750)
+                 {
+                     item.y=-300;
+                     item.style.left=Math.floor(Math.random()*350)+"px";
+                 }
+              item.y+=player.speed;  
+              item.style.top=item.y+"px"; 
+             })
+         }
+        function gamePlay()
+         {
+         console.log("i am abhiraj");
+         let car=document.querySelector('.car'); 
+          let road=gameArea.getBoundingClientRect();
+           if(player.start)
+           {
+            moveLines();
+            moveenemy(car);
+               if(keys.ArrowUp && player.y>(road.top+70)){player.y -= player.speed}//jab ek hi stat ho ; no need
+               if(keys.ArrowDown && player.y<(road.bottom-100))  {player.y += player.speed}
+               if(keys.ArrowLeft && player.x>0)  {player.x -= player.speed}
+               if(keys.ArrowRight && player.x<(road.width-50)) {player.x += player.speed}
+               car.style.top=player.y + "px";//jo value mil raha h arrow key press karne pe usko 
+               car.style.left=player.x + "px";//concate kar rahe h x ka left se & y ka top se
+            window.requestAnimationFrame(gamePlay); 
+            console.log(player.score++);
+            player.score++;
+            let ps= player.score-2;
+            score.innerHTML="score :"+ps;
+           }
+           
+            
+         }
+
+         function start()
+         {    //gameArea.classList.remove('hide');//initially isko hide karke rakhe h 
+             startScreen.classList.add('hide');//click hone pe isme hide class le ayenge i.e startscreen ko hide kar denge
+             gameArea.innerHTML= "";
+             player.start=true;//ha ab playr khelna chahta h,assurrity ke liye
+             player.score=0;
+
+            //a inbuilt fun h jo particular chij ko continualy repeat karta h 
+           window.requestAnimationFrame(gamePlay);//jisme animationlagana h usko pas kar diye
+
+           for(x=0;x<5;x++)
+           {
+           let roadLine=document.createElement('div');
+           roadLine.setAttribute('class','lines');
+           roadLine.y=(x*150);
+           roadLine.style.top=roadLine.y+"px";
+           gameArea.appendChild(roadLine);
+           } 
+
+           
+
+
+           //gamearea mai ek car lana hai
+           //so gamearea ke andar car name ka class add karenge 
+           //uske andar hum car banayenge latter on
+           let car=document.createElement('div');
+           car.setAttribute('class','car');
+           //car.innerText="hey abhiraj";
+           gameArea.appendChild(car);//add kar rahe hai class car
+
+
+           player.x=car.offsetLeft;//car ka left se position position pata kar rahe
+           player.y=car.offsetTop;
+
+          // console.log("top position "+car.offsetTop);
+           //console.log("left position "+car.offsetLeft);
+          for(x=0;x<3;x++)
+           {
+           let enemycar=document.createElement('div');
+           enemycar.setAttribute('class','enemy');
+           enemycar.y=((x*1)*350)*-1;
+           enemycar.style.top=enemycar.y+"px";
+           enemycar.style.backgroundColor=randomcolor();
+           enemycar.style.left=Math.floor(Math.random()*350)+"px";
+           gameArea.appendChild(enemycar);
+           } 
+
+         
+          }
+         function randomcolor()
+         {
+             
+         }
+
+
+    </script>
+    
+</body>
+</html>
